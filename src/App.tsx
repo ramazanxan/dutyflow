@@ -1,8 +1,12 @@
 import { Loader2 } from 'lucide-react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
-import Dashboard from '@/pages/Dashboard'
+import CreateWorkspace from '@/pages/CreateWorkspace'
+import JoinWorkspace from '@/pages/JoinWorkspace'
+import Members from '@/pages/Members'
 import Welcome from '@/pages/Welcome'
+import WorkspaceDashboard from '@/pages/WorkspaceDashboard'
+import Workspaces from '@/pages/Workspaces'
 
 export default function App() {
   const { profile, isLoading } = useAuth()
@@ -15,13 +19,20 @@ export default function App() {
     )
   }
 
+  // Адрес не меняем: после ввода имени пользователь попадёт туда, куда шёл —
+  // например, по ссылке-приглашению #/join/КОД
   if (!profile) {
     return <Welcome />
   }
 
   return (
     <Routes>
-      <Route path="/" element={<Dashboard />} />
+      <Route path="/" element={<Workspaces />} />
+      <Route path="/create" element={<CreateWorkspace />} />
+      <Route path="/join" element={<JoinWorkspace />} />
+      <Route path="/join/:code" element={<JoinWorkspace />} />
+      <Route path="/w/:workspaceId" element={<WorkspaceDashboard />} />
+      <Route path="/w/:workspaceId/members" element={<Members />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
