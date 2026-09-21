@@ -5,6 +5,7 @@ import { TaskCard } from '@/components/tasks/TaskCard'
 import { buttonVariants } from '@/components/ui/button'
 import { InviteCard } from '@/components/workspace/InviteCard'
 import { useAuth } from '@/hooks/useAuth'
+import { useWorkspaceRealtime } from '@/hooks/useRealtime'
 import { useCategories, useTasks } from '@/hooks/useTasks'
 import { useMembers, useWorkspace } from '@/hooks/useWorkspaces'
 import { workspaceCategoryIcon } from '@/lib/constants'
@@ -20,6 +21,8 @@ export default function WorkspaceDashboard() {
   const members = useMembers(workspaceId)
   const categories = useCategories(workspaceId)
   const tasks = useTasks(workspaceId)
+
+  useWorkspaceRealtime(workspaceId)
 
   if (workspace.isPending) {
     return (

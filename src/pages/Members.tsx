@@ -4,6 +4,7 @@ import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { ConfirmDialog, type ConfirmRequest } from '@/components/ui/confirm-dialog'
 import { useAuth } from '@/hooks/useAuth'
+import { useWorkspaceRealtime } from '@/hooks/useRealtime'
 import { useChangeMemberRole, useMembers, useRemoveMember, useWorkspace } from '@/hooks/useWorkspaces'
 import { ROLE_LABELS } from '@/lib/constants'
 import type { MemberWithProfile } from '@/services/workspaces'
@@ -17,6 +18,8 @@ export default function Members() {
   const changeRole = useChangeMemberRole(workspaceId!)
   const removeMember = useRemoveMember(workspaceId!)
   const [confirmRequest, setConfirmRequest] = useState<ConfirmRequest | null>(null)
+
+  useWorkspaceRealtime(workspaceId)
 
   if (workspace.isSuccess && !workspace.data) {
     return <Navigate to="/" replace />

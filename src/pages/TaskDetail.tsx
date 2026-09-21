@@ -4,6 +4,7 @@ import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { ConfirmDialog, type ConfirmRequest } from '@/components/ui/confirm-dialog'
 import { useAuth } from '@/hooks/useAuth'
+import { useWorkspaceRealtime } from '@/hooks/useRealtime'
 import { useCategories, useDeleteTask, useSetTaskStatus, useTask } from '@/hooks/useTasks'
 import { useMembers } from '@/hooks/useWorkspaces'
 import { effectiveStatus, formatDue, PRIORITIES, STATUS_META } from '@/lib/tasks'
@@ -20,6 +21,8 @@ export default function TaskDetail() {
   const setStatus = useSetTaskStatus(workspaceId!)
   const deleteTask = useDeleteTask(workspaceId!)
   const [confirmRequest, setConfirmRequest] = useState<ConfirmRequest | null>(null)
+
+  useWorkspaceRealtime(workspaceId)
 
   if (task.isPending) {
     return (
