@@ -1,13 +1,14 @@
-import { ArrowLeft, Check, Pencil, Play, Trash2, X } from 'lucide-react'
+import { ArrowLeft, Check, Pencil, Play, Star, Trash2, X } from 'lucide-react'
 import { useState } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { ConfirmDialog, type ConfirmRequest } from '@/components/ui/confirm-dialog'
 import { useAuth } from '@/hooks/useAuth'
 import { useWorkspaceRealtime } from '@/hooks/useRealtime'
+import { useTaskPoints } from '@/hooks/useStats'
 import { useCategories, useDeleteTask, useSetTaskStatus, useTask } from '@/hooks/useTasks'
 import { useMembers } from '@/hooks/useWorkspaces'
-import { effectiveStatus, formatDue, PRIORITIES, STATUS_META } from '@/lib/tasks'
+import { effectiveStatus, formatDue, pointsReasonLabel, PRIORITIES, STATUS_META } from '@/lib/tasks'
 import { cn } from '@/lib/utils'
 
 export default function TaskDetail() {
@@ -20,6 +21,7 @@ export default function TaskDetail() {
   const categories = useCategories(workspaceId)
   const setStatus = useSetTaskStatus(workspaceId!)
   const deleteTask = useDeleteTask(workspaceId!)
+  const points = useTaskPoints(taskId)
   const [confirmRequest, setConfirmRequest] = useState<ConfirmRequest | null>(null)
 
   useWorkspaceRealtime(workspaceId)
@@ -132,6 +134,31 @@ export default function TaskDetail() {
         )}
         {author && <Row label="Создал" value={author.displayName} />}
       </dl>
+
+      {points.data && points.data.length > 0 && (
+        <ul className="flex flex-col gap-2">
+          {points.data.map((transaction) => (
+            <li
+              key={transaction.id}
+              className="bg-card flex items-center justify-between gap-4 rounded-2xl border p-4 text-sm"
+            >
+              <span className="flex items-center gap-2">
+                <Star className="text-priority-high size-4" />
+                {pointsReasonLabel(transaction.reason)}
+              </span>
+              <span
+                className={cn(
+                  'font-medium',
+                  transaction.amount >= 0 ? 'text-status-done' : 'text-status-overdue',
+                )}
+              >
+                {transaction.amount > 0 ? '+' : ''}
+                {transaction.amount} XP
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
 
       {isOpen && (
         <div className="flex flex-col gap-2">

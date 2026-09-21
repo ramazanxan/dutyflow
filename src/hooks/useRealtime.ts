@@ -22,9 +22,29 @@ export function useWorkspaceRealtime(workspaceId: string | undefined) {
         },
         (payload) => {
           queryClient.invalidateQueries({ queryKey: ['tasks', workspaceId] })
+          queryClient.invalidateQueries({ queryKey: ['stats', workspaceId] })
 
           const taskId = (payload.new as { id?: string }).id ?? (payload.old as { id?: string }).id
-          if (taskId) queryClient.invalidateQueries({ queryKey: ['task', taskId] })
+          if (taskId) {
+            queryClient.invalidateQueries({ queryKey: ['task', taskId] })
+            queryClient.invalidateQueries({ queryKey: ['task-points', taskId] })
+          }
+        },
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'points_transactions',
+          filter: `workspace_id=eq.${workspaceId}`,
+        },
+        (payload) => {
+          queryClient.invalidateQueries({ queryKey: ['stats', workspaceId] })
+          queryClient.invalidateQueries({ queryKey: ['member-points', workspaceId] })
+
+          const taskId = (payload.new as { task_id?: string }).task_id
+          if (taskId) queryClient.invalidateQueries({ queryKey: ['task-points', taskId] })
         },
       )
       .on(

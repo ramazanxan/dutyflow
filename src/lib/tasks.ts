@@ -17,6 +17,17 @@ export const STATUS_META: Record<EffectiveStatus, { label: string; className: st
   cancelled: { label: 'Отменено', className: 'bg-status-cancelled' },
 }
 
+export const POINTS_REASON_LABELS: Record<string, string> = {
+  completed: 'Выполнено вовремя',
+  completed_early: 'Выполнено раньше срока',
+  completed_late: 'Выполнено с опозданием',
+  overdue: 'Просрочено',
+}
+
+export function pointsReasonLabel(reason: string): string {
+  return POINTS_REASON_LABELS[reason] ?? reason
+}
+
 // Просрочка не хранится в базе, а выводится из дедлайна — иначе пришлось бы
 // держать фоновый процесс, который переписывает статусы.
 export function effectiveStatus(task: Task, now = new Date()): EffectiveStatus {

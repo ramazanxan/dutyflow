@@ -6,6 +6,7 @@ import { buttonVariants } from '@/components/ui/button'
 import { InviteCard } from '@/components/workspace/InviteCard'
 import { useAuth } from '@/hooks/useAuth'
 import { useWorkspaceRealtime } from '@/hooks/useRealtime'
+import { useApplyOverduePenalties } from '@/hooks/useStats'
 import { useCategories, useTasks } from '@/hooks/useTasks'
 import { useMembers, useWorkspace } from '@/hooks/useWorkspaces'
 import { workspaceCategoryIcon } from '@/lib/constants'
@@ -23,6 +24,7 @@ export default function WorkspaceDashboard() {
   const tasks = useTasks(workspaceId)
 
   useWorkspaceRealtime(workspaceId)
+  useApplyOverduePenalties(workspaceId)
 
   if (workspace.isPending) {
     return (
