@@ -1,6 +1,8 @@
 import { ArrowLeft, Crown, Shield, UserMinus } from 'lucide-react'
+import { useState } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
+import { ConfirmDialog, type ConfirmRequest } from '@/components/ui/confirm-dialog'
 import { useAuth } from '@/hooks/useAuth'
 import { useChangeMemberRole, useMembers, useRemoveMember, useWorkspace } from '@/hooks/useWorkspaces'
 import { ROLE_LABELS } from '@/lib/constants'
@@ -14,6 +16,7 @@ export default function Members() {
   const members = useMembers(workspaceId)
   const changeRole = useChangeMemberRole(workspaceId!)
   const removeMember = useRemoveMember(workspaceId!)
+  const [confirmRequest, setConfirmRequest] = useState<ConfirmRequest | null>(null)
 
   if (workspace.isSuccess && !workspace.data) {
     return <Navigate to="/" replace />
@@ -22,16 +25,21 @@ export default function Members() {
   const me = members.data?.find((member) => member.userId === userId)
   const canManage = me?.role === 'owner' || me?.role === 'admin'
 
-  async function handleRemove(member: MemberWithProfile) {
+  function askRemove(member: MemberWithProfile) {
     const isSelf = member.userId === userId
-    const message = isSelf
-      ? 'Выйти из группы? Вы потеряете доступ к её обязанностям.'
-      : `Удалить участника ${member.displayName} из группы?`
 
-    if (!confirm(message)) return
-
-    await removeMember.mutateAsync(member.id)
-    if (isSelf) navigate('/')
+    setConfirmRequest({
+      title: isSelf ? 'Выйти из группы?' : `Удалить ${member.displayName}?`,
+      description: isSelf
+        ? 'Вы потеряете доступ к обязанностям этой группы.'
+        : 'Участник потеряет доступ к обязанностям группы.',
+      confirmLabel: isSelf ? 'Выйти' : 'Удалить',
+      destructive: true,
+      onConfirm: async () => {
+        await removeMember.mutateAsync(member.id)
+        if (isSelf) navigate('/')
+      },
+    })
   }
 
   return (
@@ -88,7 +96,7 @@ export default function Members() {
                   {member.role === 'admin' ? 'Снять админа' : 'Сделать админом'}
                 </Button>
 
-                <Button variant="ghost" size="icon" onClick={() => handleRemove(member)}>
+                <Button variant="ghost" size="icon" onClick={() => askRemove(member)}>
                   <UserMinus className="text-destructive size-4" />
                 </Button>
               </span>
@@ -98,10 +106,12 @@ export default function Members() {
       </ul>
 
       {me && me.role !== 'owner' && (
-        <Button variant="outline" onClick={() => handleRemove(me)}>
+        <Button variant="outline" onClick={() => askRemove(me)}>
           Выйти из группы
         </Button>
       )}
+
+      <ConfirmDialog request={confirmRequest} onCancel={() => setConfirmRequest(null)} />
     </main>
   )
 }

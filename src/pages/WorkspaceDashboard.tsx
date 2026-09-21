@@ -1,13 +1,25 @@
-import { ArrowLeft, ChevronRight, ListChecks, Users } from 'lucide-react'
+import { ArrowLeft, ChevronRight, ListChecks, Plus, Users } from 'lucide-react'
+import { useState } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
+import { TaskCard } from '@/components/tasks/TaskCard'
+import { buttonVariants } from '@/components/ui/button'
 import { InviteCard } from '@/components/workspace/InviteCard'
+import { useAuth } from '@/hooks/useAuth'
+import { useCategories, useTasks } from '@/hooks/useTasks'
 import { useMembers, useWorkspace } from '@/hooks/useWorkspaces'
 import { workspaceCategoryIcon } from '@/lib/constants'
+import { effectiveStatus, isDueToday, isOpen } from '@/lib/tasks'
+import { cn } from '@/lib/utils'
 
 export default function WorkspaceDashboard() {
   const { workspaceId } = useParams<{ workspaceId: string }>()
+  const { userId } = useAuth()
+  const [onlyMine, setOnlyMine] = useState(false)
+
   const workspace = useWorkspace(workspaceId)
   const members = useMembers(workspaceId)
+  const categories = useCategories(workspaceId)
+  const tasks = useTasks(workspaceId)
 
   if (workspace.isPending) {
     return (
@@ -20,6 +32,17 @@ export default function WorkspaceDashboard() {
   if (!workspace.data) {
     return <Navigate to="/" replace />
   }
+
+  const all = tasks.data ?? []
+  const overdueCount = all.filter((task) => effectiveStatus(task) === 'overdue').length
+  const todayCount = all.filter((task) => isOpen(task) && isDueToday(task)).length
+  const doneCount = all.filter((task) => task.status === 'completed').length
+
+  const visible = onlyMine ? all.filter((task) => task.assigned_to === userId) : all
+  const open = visible.filter(isOpen)
+  const closed = visible.filter((task) => !isOpen(task))
+
+  const nameByUser = new Map(members.data?.map((m) => [m.userId, m.displayName]))
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-2xl flex-col gap-6 px-5 py-8">
@@ -40,6 +63,12 @@ export default function WorkspaceDashboard() {
         </div>
       </header>
 
+      <div className="grid grid-cols-3 gap-3">
+        <Stat value={overdueCount} label="Просрочено" dotClassName="bg-status-overdue" />
+        <Stat value={todayCount} label="Сегодня" dotClassName="bg-priority-high" />
+        <Stat value={doneCount} label="Выполнено" dotClassName="bg-status-done" />
+      </div>
+
       <Link
         to={`/w/${workspace.data.id}/members`}
         className="bg-card hover:bg-accent flex items-center gap-4 rounded-2xl border p-4 transition-colors"
@@ -54,15 +83,109 @@ export default function WorkspaceDashboard() {
         <ChevronRight className="text-muted-foreground size-5 shrink-0" />
       </Link>
 
-      <InviteCard code={workspace.data.invite_code} />
+      <section className="flex flex-col gap-3">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-lg font-semibold">Обязанности</h2>
 
-      <div className="bg-card flex flex-col items-center gap-3 rounded-2xl border p-8 text-center">
-        <ListChecks className="text-muted-foreground size-10" />
-        <p className="font-medium">Обязанностей пока нет</p>
-        <p className="text-muted-foreground text-sm text-balance">
-          Создание задач появится на следующем этапе
-        </p>
-      </div>
+          <div className="bg-secondary flex rounded-lg p-0.5 text-sm">
+            <button
+              onClick={() => setOnlyMine(false)}
+              className={cn('rounded-md px-3 py-1', !onlyMine && 'bg-card font-medium shadow-sm')}
+            >
+              Все
+            </button>
+            <button
+              onClick={() => setOnlyMine(true)}
+              className={cn('rounded-md px-3 py-1', onlyMine && 'bg-card font-medium shadow-sm')}
+            >
+              Мои
+            </button>
+          </div>
+        </div>
+
+        {tasks.isPending && <div className="bg-muted h-20 animate-pulse rounded-2xl" />}
+
+        {tasks.isError && (
+          <p className="text-destructive text-sm">Не удалось загрузить обязанности.</p>
+        )}
+
+        {tasks.isSuccess && visible.length === 0 && (
+          <div className="bg-card flex flex-col items-center gap-3 rounded-2xl border p-8 text-center">
+            <ListChecks className="text-muted-foreground size-10" />
+            <p className="font-medium">
+              {onlyMine ? 'На вас пока ничего не назначено' : 'Пока нет обязанностей'}
+            </p>
+            {!onlyMine && (
+              <p className="text-muted-foreground text-sm text-balance">
+                Создайте первую обязанность и назначьте ответственного
+              </p>
+            )}
+          </div>
+        )}
+
+        {open.length > 0 && (
+          <ul className="flex flex-col gap-3">
+            {open.map((task) => (
+              <li key={task.id}>
+                <TaskCard
+                  task={task}
+                  assigneeName={nameByUser.get(task.assigned_to ?? '') ?? null}
+                  category={categories.data?.find((c) => c.id === task.category_id)}
+                  to={`/w/${workspace.data!.id}/task/${task.id}`}
+                />
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {closed.length > 0 && (
+          <>
+            <h3 className="text-muted-foreground mt-2 text-sm font-medium">Завершённые</h3>
+            <ul className="flex flex-col gap-3">
+              {closed.map((task) => (
+                <li key={task.id}>
+                  <TaskCard
+                    task={task}
+                    assigneeName={nameByUser.get(task.assigned_to ?? '') ?? null}
+                    category={categories.data?.find((c) => c.id === task.category_id)}
+                    to={`/w/${workspace.data!.id}/task/${task.id}`}
+                  />
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+
+        <Link
+          to={`/w/${workspace.data.id}/task/new`}
+          className={cn(buttonVariants({ size: 'lg' }), 'mt-2')}
+        >
+          <Plus className="size-5" />
+          Добавить обязанность
+        </Link>
+      </section>
+
+      <InviteCard code={workspace.data.invite_code} />
     </main>
+  )
+}
+
+function Stat({
+  value,
+  label,
+  dotClassName,
+}: {
+  value: number
+  label: string
+  dotClassName: string
+}) {
+  return (
+    <div className="bg-card flex flex-col items-center gap-1 rounded-2xl border p-4">
+      <span className="flex items-center gap-1.5">
+        <span className={cn('size-2 rounded-full', dotClassName)} />
+        <span className="text-2xl font-semibold">{value}</span>
+      </span>
+      <span className="text-muted-foreground text-xs">{label}</span>
+    </div>
   )
 }

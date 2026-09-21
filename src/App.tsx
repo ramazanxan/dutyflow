@@ -4,6 +4,8 @@ import { useAuth } from '@/hooks/useAuth'
 import CreateWorkspace from '@/pages/CreateWorkspace'
 import JoinWorkspace from '@/pages/JoinWorkspace'
 import Members from '@/pages/Members'
+import TaskDetail from '@/pages/TaskDetail'
+import TaskForm from '@/pages/TaskForm'
 import Welcome from '@/pages/Welcome'
 import WorkspaceDashboard from '@/pages/WorkspaceDashboard'
 import Workspaces from '@/pages/Workspaces'
@@ -33,6 +35,9 @@ export default function App() {
       <Route path="/join/:code" element={<JoinWorkspace />} />
       <Route path="/w/:workspaceId" element={<WorkspaceDashboard />} />
       <Route path="/w/:workspaceId/members" element={<Members />} />
+      <Route path="/w/:workspaceId/task/new" element={<TaskForm />} />
+      <Route path="/w/:workspaceId/task/:taskId" element={<TaskDetail />} />
+      <Route path="/w/:workspaceId/task/:taskId/edit" element={<TaskForm />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
