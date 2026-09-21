@@ -29,6 +29,20 @@ npm run dev
 npm run build
 ```
 
+## База данных
+
+Миграции лежат в `supabase/migrations/` и применяются по порядку.
+
+Проще всего — через SQL Editor в панели Supabase: открыть каждый файл по очереди
+(`..._schema.sql` → `..._functions.sql` → `..._rls.sql`) и выполнить.
+
+Либо через CLI:
+
+```bash
+npx supabase link --project-ref <ref>
+npx supabase db push
+```
+
 ## Деплой
 
 Push в `main` запускает GitHub Actions → GitHub Pages.
