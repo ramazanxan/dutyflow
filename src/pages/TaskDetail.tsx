@@ -3,10 +3,17 @@ import { useState } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import { ConfirmDialog, type ConfirmRequest } from '@/components/ui/confirm-dialog'
+import { Select } from '@/components/ui/select'
 import { useAuth } from '@/hooks/useAuth'
 import { useWorkspaceRealtime } from '@/hooks/useRealtime'
 import { useTaskPoints } from '@/hooks/useStats'
-import { useCategories, useDeleteTask, useSetTaskStatus, useTask } from '@/hooks/useTasks'
+import {
+  useCategories,
+  useDeleteTask,
+  useHandOffTask,
+  useSetTaskStatus,
+  useTask,
+} from '@/hooks/useTasks'
 import { useMembers } from '@/hooks/useWorkspaces'
 import {
   effectiveStatus,
@@ -29,6 +36,7 @@ export default function TaskDetail() {
   const categories = useCategories(workspaceId)
   const setStatus = useSetTaskStatus(workspaceId!)
   const deleteTask = useDeleteTask(workspaceId!)
+  const handOff = useHandOffTask(workspaceId!)
   const points = useTaskPoints(taskId)
   const [confirmRequest, setConfirmRequest] = useState<ConfirmRequest | null>(null)
 
@@ -205,6 +213,34 @@ export default function TaskDetail() {
               <Check className="size-5" />
               Выполнить
             </Button>
+          )}
+
+          {current.assigned_to === userId && (members.data?.length ?? 0) > 1 && (
+            <Select
+              value=""
+              onChange={(event) => {
+                if (event.target.value) {
+                  handOff.mutate({ taskId: current.id, userId: event.target.value })
+                }
+              }}
+              disabled={handOff.isPending}
+              aria-label="Передать обязанность"
+            >
+              <option value="">
+                {handOff.isPending ? 'Передаём…' : 'Передать другому…'}
+              </option>
+              {members.data
+                ?.filter((member) => member.userId !== userId)
+                .map((member) => (
+                  <option key={member.userId} value={member.userId}>
+                    {member.displayName}
+                  </option>
+                ))}
+            </Select>
+          )}
+
+          {handOff.isError && (
+            <p className="text-destructive text-sm">Не удалось передать обязанность.</p>
           )}
 
           {canComplete && current.status === 'todo' && (

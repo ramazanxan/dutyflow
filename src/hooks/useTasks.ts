@@ -4,6 +4,7 @@ import {
   createTask,
   deleteTask,
   getTask,
+  handOffTask,
   listCategories,
   listTasks,
   setTaskStatus,
@@ -65,6 +66,19 @@ export function useSetTaskStatus(workspaceId: string) {
   return useMutation({
     mutationFn: ({ taskId, status }: { taskId: string; status: TaskStatus }) =>
       setTaskStatus(taskId, status),
+    onSuccess: (task) => {
+      queryClient.invalidateQueries({ queryKey: ['tasks', workspaceId] })
+      queryClient.invalidateQueries({ queryKey: ['task', task.id] })
+    },
+  })
+}
+
+export function useHandOffTask(workspaceId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ taskId, userId }: { taskId: string; userId: string }) =>
+      handOffTask(taskId, userId),
     onSuccess: (task) => {
       queryClient.invalidateQueries({ queryKey: ['tasks', workspaceId] })
       queryClient.invalidateQueries({ queryKey: ['task', task.id] })

@@ -2,6 +2,7 @@ import { ArrowLeft, Flame, Star } from 'lucide-react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import { useMemberPoints, useWorkspaceStats } from '@/hooks/useStats'
 import { useWorkspace } from '@/hooks/useWorkspaces'
+import { computeAchievements, isEarned } from '@/lib/achievements'
 import { pointsReasonLabel } from '@/lib/tasks'
 import { cn } from '@/lib/utils'
 
@@ -24,6 +25,8 @@ export default function MemberStats() {
   if (!member) {
     return <Navigate to={`/w/${workspaceId}/members`} replace />
   }
+
+  const achievements = computeAchievements(member, points.data ?? [])
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-6 px-5 py-8">
@@ -64,6 +67,54 @@ export default function MemberStats() {
         <Row label="Сейчас просрочено" value={member.overdue} />
         <Row label="Процент выполнения" value={`${member.completionRate}%`} />
       </dl>
+
+      <section className="flex flex-col gap-3">
+        <h2 className="text-lg font-semibold">Достижения</h2>
+
+        <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          {achievements.map((achievement) => {
+            const earned = isEarned(achievement)
+
+            return (
+              <li
+                key={achievement.id}
+                className={cn(
+                  'flex items-center gap-3 rounded-2xl border p-3',
+                  earned ? 'border-primary/40 bg-accent' : 'bg-card',
+                )}
+              >
+                <span className={cn('text-2xl', !earned && 'opacity-30 grayscale')}>
+                  {achievement.icon}
+                </span>
+
+                <span className="min-w-0 flex-1">
+                  <span className={cn('block text-sm', earned ? 'font-medium' : '')}>
+                    {achievement.title}
+                  </span>
+
+                  {earned ? (
+                    <span className="text-status-done text-xs">Получено</span>
+                  ) : (
+                    <>
+                      <span className="bg-secondary mt-1 block h-1.5 overflow-hidden rounded-full">
+                        <span
+                          className="bg-primary block h-full rounded-full transition-all"
+                          style={{
+                            width: `${Math.round((achievement.current / achievement.target) * 100)}%`,
+                          }}
+                        />
+                      </span>
+                      <span className="text-muted-foreground mt-1 block text-xs">
+                        {achievement.current} из {achievement.target}
+                      </span>
+                    </>
+                  )}
+                </span>
+              </li>
+            )
+          })}
+        </ul>
+      </section>
 
       <section className="flex flex-col gap-3">
         <h2 className="text-lg font-semibold">История начислений</h2>

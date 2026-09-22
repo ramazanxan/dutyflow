@@ -2,6 +2,7 @@ import {
   ArrowLeft,
   CalendarDays,
   ChevronRight,
+  Columns3,
   LayoutTemplate,
   ListChecks,
   Plus,
@@ -113,6 +114,20 @@ export default function WorkspaceDashboard() {
             <span className="block font-medium">Календарь</span>
             <span className="text-muted-foreground block truncate text-sm">
               Обязанности по датам
+            </span>
+          </span>
+          <ChevronRight className="text-muted-foreground size-5 shrink-0" />
+        </Link>
+
+        <Link
+          to={`/w/${workspace.data.id}/board`}
+          className="bg-card hover:bg-accent flex items-center gap-4 rounded-2xl border p-4 transition-colors"
+        >
+          <Columns3 className="text-muted-foreground size-5 shrink-0" />
+          <span className="min-w-0 flex-1">
+            <span className="block font-medium">Доска</span>
+            <span className="text-muted-foreground block truncate text-sm">
+              Перетаскивать между столбцами
             </span>
           </span>
           <ChevronRight className="text-muted-foreground size-5 shrink-0" />

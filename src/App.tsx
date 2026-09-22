@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { OfflineBanner } from '@/components/layout/OfflineBanner'
 import { useAuth } from '@/hooks/useAuth'
 import { useNotificationsRealtime } from '@/hooks/useNotifications'
+import Board from '@/pages/Board'
 import Calendar from '@/pages/Calendar'
 import CreateWorkspace from '@/pages/CreateWorkspace'
 import JoinWorkspace from '@/pages/JoinWorkspace'
@@ -53,6 +54,7 @@ export default function App() {
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/w/:workspaceId" element={<WorkspaceDashboard />} />
+        <Route path="/w/:workspaceId/board" element={<Board />} />
         <Route path="/w/:workspaceId/calendar" element={<Calendar />} />
         <Route path="/w/:workspaceId/members" element={<Members />} />
         <Route path="/w/:workspaceId/templates" element={<Templates />} />

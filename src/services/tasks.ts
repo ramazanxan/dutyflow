@@ -115,6 +115,20 @@ export async function setTaskStatus(taskId: string, status: TaskStatus): Promise
   return data
 }
 
+// Передача дежурства — единственное, что исполнитель может менять
+// у чужой задачи, кроме статуса
+export async function handOffTask(taskId: string, userId: string): Promise<Task> {
+  const { data, error } = await supabase
+    .from('tasks')
+    .update({ assigned_to: userId })
+    .eq('id', taskId)
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}
+
 export async function deleteTask(taskId: string): Promise<void> {
   const { error } = await supabase.from('tasks').delete().eq('id', taskId)
   if (error) throw error
