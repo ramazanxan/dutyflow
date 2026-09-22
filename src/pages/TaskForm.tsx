@@ -38,6 +38,10 @@ export default function TaskForm() {
   const [reminderMinutes, setReminderMinutes] = useState<number | null>(null)
   const [recurrenceType, setRecurrenceType] = useState<RecurrenceType>('none')
   const [weekdays, setWeekdays] = useState<number[]>([])
+  const [rotation, setRotation] = useState<string[]>([])
+
+  const nameOf = (userId: string) =>
+    members.data?.find((member) => member.userId === userId)?.displayName ?? 'участник'
 
   const task = existing.data
 
@@ -52,6 +56,7 @@ export default function TaskForm() {
     setReminderMinutes(task.reminder_minutes)
     setRecurrenceType(task.recurrence_type)
     setWeekdays(recurrenceWeekdays(task.recurrence_config))
+    setRotation(task.rotation_user_ids)
   }, [task])
 
   const isEditing = Boolean(taskId)
@@ -66,16 +71,23 @@ export default function TaskForm() {
     event.preventDefault()
     if (!title.trim() || isSaving) return
 
+    // Дежурство начинается с первого в очереди, иначе первый повтор
+    // достался бы случайному человеку
+    const useRotation = Boolean(dueAt) && recurrenceType !== 'none' && rotation.length > 0
+    const firstAssignee =
+      useRotation && !rotation.includes(assignedTo) ? rotation[0] : assignedTo || null
+
     const input = {
       title,
       description,
-      assignedTo: assignedTo || null,
+      assignedTo: firstAssignee,
       categoryId: categoryId || null,
       priority,
       dueAt: fromDateTimeLocal(dueAt),
       reminderMinutes,
       recurrenceType,
       recurrenceWeekdays: weekdays,
+      rotationUserIds: rotation,
     }
 
     if (taskId) {
@@ -248,6 +260,60 @@ export default function TaskForm() {
               </p>
             )}
           </div>
+        )}
+
+        {dueAt && recurrenceType !== 'none' && (members.data?.length ?? 0) > 1 && (
+          <fieldset className="flex flex-col gap-2">
+            <legend className="mb-2 text-sm font-medium">Очередь</legend>
+
+            <p className="text-muted-foreground mb-1 text-xs leading-relaxed">
+              Отметьте, кто дежурит по очереди — ответственный будет сменяться при каждом
+              повторе. Если никого не отмечать, задача всегда остаётся на одном человеке.
+            </p>
+
+            <div className="flex flex-col gap-2">
+              {members.data?.map((member) => {
+                const index = rotation.indexOf(member.userId)
+                const isOn = index !== -1
+
+                return (
+                  <button
+                    key={member.userId}
+                    type="button"
+                    onClick={() =>
+                      setRotation((current) =>
+                        current.includes(member.userId)
+                          ? current.filter((id) => id !== member.userId)
+                          : [...current, member.userId],
+                      )
+                    }
+                    className={cn(
+                      'flex items-center gap-3 rounded-xl border p-3 text-sm transition-colors',
+                      isOn ? 'border-primary bg-accent' : 'bg-card hover:bg-accent',
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        'flex size-6 shrink-0 items-center justify-center rounded-full text-xs font-medium',
+                        isOn
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-secondary text-muted-foreground',
+                      )}
+                    >
+                      {isOn ? index + 1 : ''}
+                    </span>
+                    {member.displayName}
+                  </button>
+                )
+              })}
+            </div>
+
+            {rotation.length > 0 && (
+              <p className="text-muted-foreground mt-1 text-xs">
+                Первым дежурит {nameOf(rotation[0])}, дальше по кругу в этом порядке.
+              </p>
+            )}
+          </fieldset>
         )}
 
         {dueAt && (

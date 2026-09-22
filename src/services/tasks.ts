@@ -11,6 +11,7 @@ export type TaskInput = {
   reminderMinutes: number | null
   recurrenceType: RecurrenceType
   recurrenceWeekdays: number[]
+  rotationUserIds: string[]
 }
 
 function recurrenceFields(input: TaskInput) {
@@ -19,8 +20,9 @@ function recurrenceFields(input: TaskInput) {
 
   return {
     recurrence_type: type,
-    recurrence_config:
-      type === 'custom_weekdays' ? { weekdays: input.recurrenceWeekdays } : {},
+    recurrence_config: type === 'custom_weekdays' ? { weekdays: input.recurrenceWeekdays } : {},
+    // Очередь имеет смысл только у повторяющейся задачи
+    rotation_user_ids: type === 'none' ? [] : input.rotationUserIds,
   }
 }
 

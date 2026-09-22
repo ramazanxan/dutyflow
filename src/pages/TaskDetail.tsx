@@ -60,6 +60,14 @@ export default function TaskDetail() {
   const canComplete = canManage || current.assigned_to === userId
   const isOpen = current.status === 'todo' || current.status === 'in_progress'
 
+  const rotation = current.rotation_user_ids
+  const rotationIndex = current.assigned_to ? rotation.indexOf(current.assigned_to) : -1
+  const nextInRotation = rotation.length
+    ? (members.data?.find(
+        (m) => m.userId === rotation[rotationIndex === -1 ? 0 : (rotationIndex + 1) % rotation.length],
+      )?.displayName ?? null)
+    : null
+
   const askComplete = () =>
     setConfirmRequest({
       title: 'Выполнить обязанность?',
@@ -134,6 +142,19 @@ export default function TaskDetail() {
             label="Повторение"
             value={recurrenceLabel(current.recurrence_type, current.recurrence_config)}
           />
+        )}
+        {current.rotation_user_ids.length > 0 && (
+          <>
+            <Row
+              label="Очередь"
+              value={current.rotation_user_ids
+                .map((id) => members.data?.find((m) => m.userId === id)?.displayName ?? '—')
+                .join(' → ')}
+            />
+            {isOpen && nextInRotation && (
+              <Row label="Следующий" value={nextInRotation} />
+            )}
+          </>
         )}
         {current.due_at && current.reminder_minutes !== null && (
           <Row label="Напоминание" value={reminderLabel(current.reminder_minutes)} />

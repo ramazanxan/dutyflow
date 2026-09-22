@@ -70,6 +70,7 @@ export type Task = {
   recurrence_config: Json
   reminder_minutes: number | null
   penalty_points: number
+  rotation_user_ids: string[]
   completed_at: string | null
   created_at: string
   updated_at: string
