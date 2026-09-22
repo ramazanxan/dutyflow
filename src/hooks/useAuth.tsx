@@ -5,6 +5,8 @@ import type { Profile } from '@/types/database'
 type AuthContextValue = {
   userId: string | null
   profile: Profile | null
+  email: string | null
+  isAnonymous: boolean
   isLoading: boolean
   saveName: (name: string) => Promise<void>
 }
@@ -13,6 +15,8 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [userId, setUserId] = useState<string | null>(null)
+  const [email, setEmail] = useState<string | null>(null)
+  const [isAnonymous, setIsAnonymous] = useState(true)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [sessionChecked, setSessionChecked] = useState(false)
   const [profileChecked, setProfileChecked] = useState(false)
@@ -22,6 +26,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Внутри колбэка нельзя await-ить supabase — профиль грузим отдельным эффектом.
     const { data } = supabase.auth.onAuthStateChange((_event, session) => {
       setUserId(session?.user.id ?? null)
+      setEmail(session?.user.email || null)
+      setIsAnonymous(session?.user.is_anonymous ?? true)
       setSessionChecked(true)
     })
     return () => data.subscription.unsubscribe()
@@ -83,6 +89,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         userId,
         profile,
+        email,
+        isAnonymous,
         isLoading: !sessionChecked || !profileChecked,
         saveName,
       }}
