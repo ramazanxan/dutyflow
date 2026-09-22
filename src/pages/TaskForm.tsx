@@ -6,9 +6,17 @@ import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import { useCategories, useCreateTask, useTask, useUpdateTask } from '@/hooks/useTasks'
 import { useMembers } from '@/hooks/useWorkspaces'
-import { fromDateTimeLocal, PRIORITIES, REMINDER_OPTIONS, toDateTimeLocal } from '@/lib/tasks'
+import {
+  fromDateTimeLocal,
+  PRIORITIES,
+  RECURRENCE_OPTIONS,
+  recurrenceWeekdays,
+  REMINDER_OPTIONS,
+  toDateTimeLocal,
+  WEEKDAYS,
+} from '@/lib/tasks'
 import { cn } from '@/lib/utils'
-import type { TaskPriority } from '@/types/database'
+import type { RecurrenceType, TaskPriority } from '@/types/database'
 
 export default function TaskForm() {
   const { workspaceId, taskId } = useParams<{ workspaceId: string; taskId?: string }>()
@@ -28,6 +36,8 @@ export default function TaskForm() {
   const [priority, setPriority] = useState<TaskPriority>('normal')
   const [dueAt, setDueAt] = useState('')
   const [reminderMinutes, setReminderMinutes] = useState<number | null>(null)
+  const [recurrenceType, setRecurrenceType] = useState<RecurrenceType>('none')
+  const [weekdays, setWeekdays] = useState<number[]>([])
 
   const task = existing.data
 
@@ -40,6 +50,8 @@ export default function TaskForm() {
     setPriority(task.priority)
     setDueAt(toDateTimeLocal(task.due_at))
     setReminderMinutes(task.reminder_minutes)
+    setRecurrenceType(task.recurrence_type)
+    setWeekdays(recurrenceWeekdays(task.recurrence_config))
   }, [task])
 
   const isEditing = Boolean(taskId)
@@ -62,6 +74,8 @@ export default function TaskForm() {
       priority,
       dueAt: fromDateTimeLocal(dueAt),
       reminderMinutes,
+      recurrenceType,
+      recurrenceWeekdays: weekdays,
     }
 
     if (taskId) {
@@ -184,6 +198,57 @@ export default function TaskForm() {
             onChange={(event) => setDueAt(event.target.value)}
           />
         </div>
+
+        {dueAt && (
+          <div className="flex flex-col gap-2">
+            <label htmlFor="recurrence" className="text-sm font-medium">
+              Повторение
+            </label>
+            <Select
+              id="recurrence"
+              value={recurrenceType}
+              onChange={(event) => setRecurrenceType(event.target.value as RecurrenceType)}
+            >
+              {RECURRENCE_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </Select>
+
+            {recurrenceType === 'custom_weekdays' && (
+              <div className="mt-1 flex gap-1.5">
+                {WEEKDAYS.map((day) => (
+                  <button
+                    key={day.value}
+                    type="button"
+                    onClick={() =>
+                      setWeekdays((current) =>
+                        current.includes(day.value)
+                          ? current.filter((value) => value !== day.value)
+                          : [...current, day.value],
+                      )
+                    }
+                    className={cn(
+                      'flex-1 rounded-lg border py-2 text-sm transition-colors',
+                      weekdays.includes(day.value)
+                        ? 'border-primary bg-primary text-primary-foreground font-medium'
+                        : 'bg-card hover:bg-accent',
+                    )}
+                  >
+                    {day.short}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {recurrenceType === 'custom_weekdays' && weekdays.length === 0 && (
+              <p className="text-muted-foreground text-xs">
+                Выберите хотя бы один день, иначе задача не повторится
+              </p>
+            )}
+          </div>
+        )}
 
         {dueAt && (
           <div className="flex flex-col gap-2">

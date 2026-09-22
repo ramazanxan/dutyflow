@@ -2,6 +2,7 @@ import { Loader2 } from 'lucide-react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { useNotificationsRealtime } from '@/hooks/useNotifications'
+import Calendar from '@/pages/Calendar'
 import CreateWorkspace from '@/pages/CreateWorkspace'
 import Notifications from '@/pages/Notifications'
 import JoinWorkspace from '@/pages/JoinWorkspace'
@@ -40,6 +41,7 @@ export default function App() {
       <Route path="/join/:code" element={<JoinWorkspace />} />
       <Route path="/notifications" element={<Notifications />} />
       <Route path="/w/:workspaceId" element={<WorkspaceDashboard />} />
+      <Route path="/w/:workspaceId/calendar" element={<Calendar />} />
       <Route path="/w/:workspaceId/members" element={<Members />} />
       <Route path="/w/:workspaceId/member/:userId" element={<MemberStats />} />
       <Route path="/w/:workspaceId/task/new" element={<TaskForm />} />

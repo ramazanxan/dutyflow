@@ -1,4 +1,4 @@
-import type { Task, TaskPriority, TaskStatus } from '@/types/database'
+import type { Json, RecurrenceType, Task, TaskPriority, TaskStatus } from '@/types/database'
 
 export type EffectiveStatus = TaskStatus | 'overdue'
 
@@ -15,6 +15,44 @@ export const STATUS_META: Record<EffectiveStatus, { label: string; className: st
   completed: { label: 'Выполнено', className: 'bg-status-done' },
   overdue: { label: 'Просрочено', className: 'bg-status-overdue' },
   cancelled: { label: 'Отменено', className: 'bg-status-cancelled' },
+}
+
+// Пн = 1 … Вс = 7, как isodow в Postgres — функция next_occurrence ждёт именно это
+export const WEEKDAYS: { value: number; short: string }[] = [
+  { value: 1, short: 'Пн' },
+  { value: 2, short: 'Вт' },
+  { value: 3, short: 'Ср' },
+  { value: 4, short: 'Чт' },
+  { value: 5, short: 'Пт' },
+  { value: 6, short: 'Сб' },
+  { value: 7, short: 'Вс' },
+]
+
+export const RECURRENCE_OPTIONS: { value: RecurrenceType; label: string }[] = [
+  { value: 'none', label: 'Один раз' },
+  { value: 'daily', label: 'Каждый день' },
+  { value: 'weekdays', label: 'Каждый будний день' },
+  { value: 'weekly', label: 'Каждую неделю' },
+  { value: 'biweekly', label: 'Каждые 2 недели' },
+  { value: 'monthly', label: 'Каждый месяц' },
+  { value: 'custom_weekdays', label: 'Выбранные дни недели' },
+]
+
+export function recurrenceWeekdays(config: Json): number[] {
+  const value = (config as { weekdays?: unknown })?.weekdays
+  return Array.isArray(value) ? value.map(Number).filter((day) => day >= 1 && day <= 7) : []
+}
+
+export function recurrenceLabel(type: RecurrenceType, config: Json): string {
+  if (type === 'custom_weekdays') {
+    const days = recurrenceWeekdays(config)
+    if (!days.length) return 'Один раз'
+    return WEEKDAYS.filter((day) => days.includes(day.value))
+      .map((day) => day.short)
+      .join(', ')
+  }
+
+  return RECURRENCE_OPTIONS.find((option) => option.value === type)?.label ?? 'Один раз'
 }
 
 export const REMINDER_OPTIONS: { value: number | null; label: string }[] = [

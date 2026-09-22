@@ -13,6 +13,7 @@ import {
   formatDue,
   pointsReasonLabel,
   PRIORITIES,
+  recurrenceLabel,
   reminderLabel,
   STATUS_META,
 } from '@/lib/tasks'
@@ -128,6 +129,12 @@ export default function TaskDetail() {
           }
         />
         {category && <Row label="Категория" value={`${category.icon ?? ''} ${category.name}`} />}
+        {current.recurrence_type !== 'none' && (
+          <Row
+            label="Повторение"
+            value={recurrenceLabel(current.recurrence_type, current.recurrence_config)}
+          />
+        )}
         {current.due_at && current.reminder_minutes !== null && (
           <Row label="Напоминание" value={reminderLabel(current.reminder_minutes)} />
         )}

@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase'
-import type { Category, Task, TaskPriority, TaskStatus } from '@/types/database'
+import type { Category, RecurrenceType, Task, TaskPriority, TaskStatus } from '@/types/database'
 
 export type TaskInput = {
   title: string
@@ -9,6 +9,19 @@ export type TaskInput = {
   priority: TaskPriority
   dueAt: string | null
   reminderMinutes: number | null
+  recurrenceType: RecurrenceType
+  recurrenceWeekdays: number[]
+}
+
+function recurrenceFields(input: TaskInput) {
+  // Повтор без срока бессмыслен: следующую дату не от чего отсчитывать
+  const type = input.dueAt ? input.recurrenceType : 'none'
+
+  return {
+    recurrence_type: type,
+    recurrence_config:
+      type === 'custom_weekdays' ? { weekdays: input.recurrenceWeekdays } : {},
+  }
 }
 
 export async function listTasks(workspaceId: string): Promise<Task[]> {
@@ -58,6 +71,7 @@ export async function createTask(
       priority: input.priority,
       due_at: input.dueAt,
       reminder_minutes: input.dueAt ? input.reminderMinutes : null,
+      ...recurrenceFields(input),
     })
     .select()
     .single()
@@ -77,6 +91,7 @@ export async function updateTask(taskId: string, input: TaskInput): Promise<Task
       priority: input.priority,
       due_at: input.dueAt,
       reminder_minutes: input.dueAt ? input.reminderMinutes : null,
+      ...recurrenceFields(input),
     })
     .eq('id', taskId)
     .select()

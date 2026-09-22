@@ -1,4 +1,4 @@
-import { ArrowLeft, ChevronRight, ListChecks, Plus, Users } from 'lucide-react'
+import { ArrowLeft, CalendarDays, ChevronRight, ListChecks, Plus, Users } from 'lucide-react'
 import { useState } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import { NotificationBell } from '@/components/notifications/NotificationBell'
@@ -79,19 +79,35 @@ export default function WorkspaceDashboard() {
         <Stat value={doneCount} label="Выполнено" dotClassName="bg-status-done" />
       </div>
 
-      <Link
-        to={`/w/${workspace.data.id}/members`}
-        className="bg-card hover:bg-accent flex items-center gap-4 rounded-2xl border p-4 transition-colors"
-      >
-        <Users className="text-muted-foreground size-5 shrink-0" />
-        <span className="min-w-0 flex-1">
-          <span className="block font-medium">Участники</span>
-          <span className="text-muted-foreground block truncate text-sm">
-            {members.data ? members.data.map((m) => m.displayName).join(', ') : 'Загрузка…'}
+      <div className="flex flex-col gap-3">
+        <Link
+          to={`/w/${workspace.data.id}/members`}
+          className="bg-card hover:bg-accent flex items-center gap-4 rounded-2xl border p-4 transition-colors"
+        >
+          <Users className="text-muted-foreground size-5 shrink-0" />
+          <span className="min-w-0 flex-1">
+            <span className="block font-medium">Участники</span>
+            <span className="text-muted-foreground block truncate text-sm">
+              {members.data ? members.data.map((m) => m.displayName).join(', ') : 'Загрузка…'}
+            </span>
           </span>
-        </span>
-        <ChevronRight className="text-muted-foreground size-5 shrink-0" />
-      </Link>
+          <ChevronRight className="text-muted-foreground size-5 shrink-0" />
+        </Link>
+
+        <Link
+          to={`/w/${workspace.data.id}/calendar`}
+          className="bg-card hover:bg-accent flex items-center gap-4 rounded-2xl border p-4 transition-colors"
+        >
+          <CalendarDays className="text-muted-foreground size-5 shrink-0" />
+          <span className="min-w-0 flex-1">
+            <span className="block font-medium">Календарь</span>
+            <span className="text-muted-foreground block truncate text-sm">
+              Обязанности по датам
+            </span>
+          </span>
+          <ChevronRight className="text-muted-foreground size-5 shrink-0" />
+        </Link>
+      </div>
 
       <section className="flex flex-col gap-3">
         <div className="flex items-center justify-between gap-3">
