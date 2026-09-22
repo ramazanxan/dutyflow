@@ -12,6 +12,7 @@ import Notifications from '@/pages/Notifications'
 import Settings from '@/pages/Settings'
 import TaskDetail from '@/pages/TaskDetail'
 import TaskForm from '@/pages/TaskForm'
+import Templates from '@/pages/Templates'
 import Welcome from '@/pages/Welcome'
 import WorkspaceDashboard from '@/pages/WorkspaceDashboard'
 import Workspaces from '@/pages/Workspaces'
@@ -54,6 +55,7 @@ export default function App() {
         <Route path="/w/:workspaceId" element={<WorkspaceDashboard />} />
         <Route path="/w/:workspaceId/calendar" element={<Calendar />} />
         <Route path="/w/:workspaceId/members" element={<Members />} />
+        <Route path="/w/:workspaceId/templates" element={<Templates />} />
         <Route path="/w/:workspaceId/member/:userId" element={<MemberStats />} />
         <Route path="/w/:workspaceId/task/new" element={<TaskForm />} />
         <Route path="/w/:workspaceId/task/:taskId" element={<TaskDetail />} />

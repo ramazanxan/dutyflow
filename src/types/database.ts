@@ -107,6 +107,25 @@ export type Notification = {
   created_at: string
 }
 
+export type TaskTemplate = {
+  id: string
+  workspace_id: string
+  name: string
+  icon: string | null
+  created_by: string | null
+  created_at: string
+}
+
+export type TemplateTask = {
+  id: string
+  template_id: string
+  title: string
+  category_id: string | null
+  priority: TaskPriority
+  position: number
+  created_at: string
+}
+
 export type PointsTransaction = {
   id: string
   workspace_id: string
@@ -177,6 +196,18 @@ export type Database = {
         Row: Notification
         Insert: Insertable<Notification, 'user_id' | 'type' | 'title', 'id' | 'created_at'>
         Update: Partial<Notification>
+        Relationships: []
+      }
+      task_templates: {
+        Row: TaskTemplate
+        Insert: Insertable<TaskTemplate, 'workspace_id' | 'name', 'id' | 'created_at'>
+        Update: Partial<TaskTemplate>
+        Relationships: []
+      }
+      template_tasks: {
+        Row: TemplateTask
+        Insert: Insertable<TemplateTask, 'template_id' | 'title', 'id' | 'created_at'>
+        Update: Partial<TemplateTask>
         Relationships: []
       }
       points_transactions: {

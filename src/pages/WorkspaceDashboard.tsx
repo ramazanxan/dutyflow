@@ -1,4 +1,12 @@
-import { ArrowLeft, CalendarDays, ChevronRight, ListChecks, Plus, Users } from 'lucide-react'
+import {
+  ArrowLeft,
+  CalendarDays,
+  ChevronRight,
+  LayoutTemplate,
+  ListChecks,
+  Plus,
+  Users,
+} from 'lucide-react'
 import { useState } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import { BottomNav } from '@/components/layout/BottomNav'
@@ -105,6 +113,20 @@ export default function WorkspaceDashboard() {
             <span className="block font-medium">Календарь</span>
             <span className="text-muted-foreground block truncate text-sm">
               Обязанности по датам
+            </span>
+          </span>
+          <ChevronRight className="text-muted-foreground size-5 shrink-0" />
+        </Link>
+
+        <Link
+          to={`/w/${workspace.data.id}/templates`}
+          className="bg-card hover:bg-accent flex items-center gap-4 rounded-2xl border p-4 transition-colors"
+        >
+          <LayoutTemplate className="text-muted-foreground size-5 shrink-0" />
+          <span className="min-w-0 flex-1">
+            <span className="block font-medium">Шаблоны</span>
+            <span className="text-muted-foreground block truncate text-sm">
+              Набор обязанностей одной кнопкой
             </span>
           </span>
           <ChevronRight className="text-muted-foreground size-5 shrink-0" />
