@@ -1,5 +1,6 @@
 import { ChevronRight, LogIn, Plus, Users } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { NotificationBell } from '@/components/notifications/NotificationBell'
 import { buttonVariants } from '@/components/ui/button'
 import { useAuth } from '@/hooks/useAuth'
 import { useMyWorkspaces } from '@/hooks/useWorkspaces'
@@ -12,11 +13,15 @@ export default function Workspaces() {
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-2xl flex-col gap-6 px-5 py-8">
-      <header>
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Привет, {profile?.display_name} 👋
-        </h1>
-        <p className="text-muted-foreground mt-1 text-sm">Ваши группы</p>
+      <header className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            Привет, {profile?.display_name} 👋
+          </h1>
+          <p className="text-muted-foreground mt-1 text-sm">Ваши группы</p>
+        </div>
+
+        <NotificationBell />
       </header>
 
       {isPending && <div className="bg-muted h-24 animate-pulse rounded-2xl" />}

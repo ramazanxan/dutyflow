@@ -8,6 +8,7 @@ export type TaskInput = {
   categoryId: string | null
   priority: TaskPriority
   dueAt: string | null
+  reminderMinutes: number | null
 }
 
 export async function listTasks(workspaceId: string): Promise<Task[]> {
@@ -56,6 +57,7 @@ export async function createTask(
       category_id: input.categoryId,
       priority: input.priority,
       due_at: input.dueAt,
+      reminder_minutes: input.dueAt ? input.reminderMinutes : null,
     })
     .select()
     .single()
@@ -74,6 +76,7 @@ export async function updateTask(taskId: string, input: TaskInput): Promise<Task
       category_id: input.categoryId,
       priority: input.priority,
       due_at: input.dueAt,
+      reminder_minutes: input.dueAt ? input.reminderMinutes : null,
     })
     .eq('id', taskId)
     .select()

@@ -17,6 +17,20 @@ export const STATUS_META: Record<EffectiveStatus, { label: string; className: st
   cancelled: { label: 'Отменено', className: 'bg-status-cancelled' },
 }
 
+export const REMINDER_OPTIONS: { value: number | null; label: string }[] = [
+  { value: null, label: 'Не напоминать' },
+  { value: 5, label: 'За 5 минут' },
+  { value: 15, label: 'За 15 минут' },
+  { value: 30, label: 'За 30 минут' },
+  { value: 60, label: 'За 1 час' },
+  { value: 180, label: 'За 3 часа' },
+  { value: 1440, label: 'За 1 день' },
+]
+
+export function reminderLabel(minutes: number | null): string {
+  return REMINDER_OPTIONS.find((option) => option.value === minutes)?.label ?? 'Не напоминать'
+}
+
 export const POINTS_REASON_LABELS: Record<string, string> = {
   completed: 'Выполнено вовремя',
   completed_early: 'Выполнено раньше срока',

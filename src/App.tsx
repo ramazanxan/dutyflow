@@ -1,7 +1,9 @@
 import { Loader2 } from 'lucide-react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
+import { useNotificationsRealtime } from '@/hooks/useNotifications'
 import CreateWorkspace from '@/pages/CreateWorkspace'
+import Notifications from '@/pages/Notifications'
 import JoinWorkspace from '@/pages/JoinWorkspace'
 import Members from '@/pages/Members'
 import MemberStats from '@/pages/MemberStats'
@@ -13,6 +15,8 @@ import Workspaces from '@/pages/Workspaces'
 
 export default function App() {
   const { profile, isLoading } = useAuth()
+
+  useNotificationsRealtime()
 
   if (isLoading) {
     return (
@@ -34,6 +38,7 @@ export default function App() {
       <Route path="/create" element={<CreateWorkspace />} />
       <Route path="/join" element={<JoinWorkspace />} />
       <Route path="/join/:code" element={<JoinWorkspace />} />
+      <Route path="/notifications" element={<Notifications />} />
       <Route path="/w/:workspaceId" element={<WorkspaceDashboard />} />
       <Route path="/w/:workspaceId/members" element={<Members />} />
       <Route path="/w/:workspaceId/member/:userId" element={<MemberStats />} />

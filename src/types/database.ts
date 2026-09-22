@@ -209,6 +209,10 @@ export type Database = {
         Args: { _workspace_id: string }
         Returns: number
       }
+      sync_task_notifications: {
+        Args: { _workspace_id: string }
+        Returns: number
+      }
     }
     Enums: {
       member_role: MemberRole

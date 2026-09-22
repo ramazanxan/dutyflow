@@ -1,11 +1,13 @@
 import { ArrowLeft, ChevronRight, ListChecks, Plus, Users } from 'lucide-react'
 import { useState } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
+import { NotificationBell } from '@/components/notifications/NotificationBell'
 import { TaskCard } from '@/components/tasks/TaskCard'
 import { buttonVariants } from '@/components/ui/button'
 import { InviteCard } from '@/components/workspace/InviteCard'
 import { useAuth } from '@/hooks/useAuth'
 import { useWorkspaceRealtime } from '@/hooks/useRealtime'
+import { useSyncTaskNotifications } from '@/hooks/useNotifications'
 import { useApplyOverduePenalties } from '@/hooks/useStats'
 import { useCategories, useTasks } from '@/hooks/useTasks'
 import { useMembers, useWorkspace } from '@/hooks/useWorkspaces'
@@ -25,6 +27,7 @@ export default function WorkspaceDashboard() {
 
   useWorkspaceRealtime(workspaceId)
   useApplyOverduePenalties(workspaceId)
+  useSyncTaskNotifications(workspaceId)
 
   if (workspace.isPending) {
     return (
@@ -60,12 +63,14 @@ export default function WorkspaceDashboard() {
         <span className="bg-secondary flex size-14 shrink-0 items-center justify-center rounded-2xl text-3xl">
           {workspaceCategoryIcon(workspace.data.category)}
         </span>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <h1 className="truncate text-2xl font-semibold tracking-tight">{workspace.data.name}</h1>
           {workspace.data.description && (
             <p className="text-muted-foreground truncate text-sm">{workspace.data.description}</p>
           )}
         </div>
+
+        <NotificationBell />
       </header>
 
       <div className="grid grid-cols-3 gap-3">

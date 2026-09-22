@@ -8,7 +8,14 @@ import { useWorkspaceRealtime } from '@/hooks/useRealtime'
 import { useTaskPoints } from '@/hooks/useStats'
 import { useCategories, useDeleteTask, useSetTaskStatus, useTask } from '@/hooks/useTasks'
 import { useMembers } from '@/hooks/useWorkspaces'
-import { effectiveStatus, formatDue, pointsReasonLabel, PRIORITIES, STATUS_META } from '@/lib/tasks'
+import {
+  effectiveStatus,
+  formatDue,
+  pointsReasonLabel,
+  PRIORITIES,
+  reminderLabel,
+  STATUS_META,
+} from '@/lib/tasks'
 import { cn } from '@/lib/utils'
 
 export default function TaskDetail() {
@@ -121,6 +128,9 @@ export default function TaskDetail() {
           }
         />
         {category && <Row label="Категория" value={`${category.icon ?? ''} ${category.name}`} />}
+        {current.due_at && current.reminder_minutes !== null && (
+          <Row label="Напоминание" value={reminderLabel(current.reminder_minutes)} />
+        )}
         {current.completed_at && (
           <Row
             label="Выполнено"

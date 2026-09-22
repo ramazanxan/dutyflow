@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Select } from '@/components/ui/select'
 import { useCategories, useCreateTask, useTask, useUpdateTask } from '@/hooks/useTasks'
 import { useMembers } from '@/hooks/useWorkspaces'
-import { fromDateTimeLocal, PRIORITIES, toDateTimeLocal } from '@/lib/tasks'
+import { fromDateTimeLocal, PRIORITIES, REMINDER_OPTIONS, toDateTimeLocal } from '@/lib/tasks'
 import { cn } from '@/lib/utils'
 import type { TaskPriority } from '@/types/database'
 
@@ -27,6 +27,7 @@ export default function TaskForm() {
   const [categoryId, setCategoryId] = useState('')
   const [priority, setPriority] = useState<TaskPriority>('normal')
   const [dueAt, setDueAt] = useState('')
+  const [reminderMinutes, setReminderMinutes] = useState<number | null>(null)
 
   const task = existing.data
 
@@ -38,6 +39,7 @@ export default function TaskForm() {
     setCategoryId(task.category_id ?? '')
     setPriority(task.priority)
     setDueAt(toDateTimeLocal(task.due_at))
+    setReminderMinutes(task.reminder_minutes)
   }, [task])
 
   const isEditing = Boolean(taskId)
@@ -59,6 +61,7 @@ export default function TaskForm() {
       categoryId: categoryId || null,
       priority,
       dueAt: fromDateTimeLocal(dueAt),
+      reminderMinutes,
     }
 
     if (taskId) {
@@ -181,6 +184,27 @@ export default function TaskForm() {
             onChange={(event) => setDueAt(event.target.value)}
           />
         </div>
+
+        {dueAt && (
+          <div className="flex flex-col gap-2">
+            <label htmlFor="reminder" className="text-sm font-medium">
+              Напомнить
+            </label>
+            <Select
+              id="reminder"
+              value={reminderMinutes === null ? '' : String(reminderMinutes)}
+              onChange={(event) =>
+                setReminderMinutes(event.target.value ? Number(event.target.value) : null)
+              }
+            >
+              {REMINDER_OPTIONS.map((option) => (
+                <option key={option.label} value={option.value === null ? '' : option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </Select>
+          </div>
+        )}
 
         {failed && (
           <p className="text-destructive text-sm">
