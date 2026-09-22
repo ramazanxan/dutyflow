@@ -1,6 +1,7 @@
 import { ArrowLeft, ChevronRight, Crown, Shield, Star, UserMinus } from 'lucide-react'
 import { useState } from 'react'
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom'
+import { BottomNav } from '@/components/layout/BottomNav'
 import { Button } from '@/components/ui/button'
 import { ConfirmDialog, type ConfirmRequest } from '@/components/ui/confirm-dialog'
 import { useAuth } from '@/hooks/useAuth'
@@ -49,7 +50,8 @@ export default function Members() {
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-2xl flex-col gap-6 px-5 py-8">
+    <>
+    <main className="mx-auto flex min-h-dvh w-full max-w-2xl flex-col gap-6 px-5 py-8 pb-24 sm:pb-8">
       <Link
         to={`/w/${workspaceId}`}
         className="text-muted-foreground hover:text-foreground flex items-center gap-2 text-sm"
@@ -132,5 +134,8 @@ export default function Members() {
 
       <ConfirmDialog request={confirmRequest} onCancel={() => setConfirmRequest(null)} />
     </main>
+
+    <BottomNav workspaceId={workspaceId} />
+    </>
   )
 }

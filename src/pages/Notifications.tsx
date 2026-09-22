@@ -10,6 +10,7 @@ import {
   Users,
 } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
+import { BottomNav } from '@/components/layout/BottomNav'
 import { Button } from '@/components/ui/button'
 import {
   useMarkAllRead,
@@ -47,7 +48,8 @@ export default function Notifications() {
   }
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-2xl flex-col gap-6 px-5 py-8">
+    <>
+    <main className="mx-auto flex min-h-dvh w-full max-w-2xl flex-col gap-6 px-5 py-8 pb-24 sm:pb-8">
       <Link to="/" className="text-muted-foreground hover:text-foreground flex items-center gap-2 text-sm">
         <ArrowLeft className="size-4" />
         Главная
@@ -128,5 +130,8 @@ export default function Notifications() {
         </ul>
       )}
     </main>
+
+    <BottomNav />
+    </>
   )
 }

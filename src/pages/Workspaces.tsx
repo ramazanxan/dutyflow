@@ -1,5 +1,6 @@
 import { ChevronRight, LogIn, Plus, Users } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { BottomNav } from '@/components/layout/BottomNav'
 import { NotificationBell } from '@/components/notifications/NotificationBell'
 import { buttonVariants } from '@/components/ui/button'
 import { useAuth } from '@/hooks/useAuth'
@@ -12,7 +13,8 @@ export default function Workspaces() {
   const { data: workspaces, isPending, isError } = useMyWorkspaces()
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-2xl flex-col gap-6 px-5 py-8">
+    <>
+    <main className="mx-auto flex min-h-dvh w-full max-w-2xl flex-col gap-6 px-5 py-8 pb-24 sm:pb-8">
       <header className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">
@@ -81,6 +83,9 @@ export default function Workspaces() {
         </Link>
       </div>
     </main>
+
+    <BottomNav />
+    </>
   )
 }
 

@@ -1,6 +1,7 @@
 import { ArrowLeft, CalendarDays, ChevronRight, ListChecks, Plus, Users } from 'lucide-react'
 import { useState } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
+import { BottomNav } from '@/components/layout/BottomNav'
 import { NotificationBell } from '@/components/notifications/NotificationBell'
 import { TaskCard } from '@/components/tasks/TaskCard'
 import { buttonVariants } from '@/components/ui/button'
@@ -53,7 +54,8 @@ export default function WorkspaceDashboard() {
   const nameByUser = new Map(members.data?.map((m) => [m.userId, m.displayName]))
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-2xl flex-col gap-6 px-5 py-8">
+    <>
+    <main className="mx-auto flex min-h-dvh w-full max-w-2xl flex-col gap-6 px-5 py-8 pb-24 sm:pb-8">
       <Link to="/" className="text-muted-foreground hover:text-foreground flex items-center gap-2 text-sm">
         <ArrowLeft className="size-4" />
         Все группы
@@ -193,6 +195,9 @@ export default function WorkspaceDashboard() {
 
       <InviteCard code={workspace.data.invite_code} />
     </main>
+
+    <BottomNav workspaceId={workspace.data.id} />
+    </>
   )
 }
 
